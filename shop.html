@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sami's Market | Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background:#f6f4ef; }
+        .glass-nav { background: rgba(246,244,239,.85); backdrop-filter: blur(16px); border-color:#dedbd4!important; }
+        .market-mark { background:#7657ff!important; box-shadow:4px 4px 0 #17171d; }
+        .item-card { border:1px solid #dedbd4!important; border-radius:1.5rem!important; box-shadow:0 5px 0 #dedbd4; }
+        .item-card:hover { transform: translateY(-8px) rotate(-.3deg); box-shadow:0 15px 0 #17171d; border-color:#17171d!important; }
+        .modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(21,22,27,.72); backdrop-filter: blur(7px); align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .page-label { font-family:monospace; letter-spacing:.09em; font-size:11px; text-transform:uppercase; }
+        #item-search { border-color:#dedbd4!important; box-shadow:0 4px 0 #dedbd4; }
+        #item-search:focus { border-color:#7657ff!important; box-shadow:0 4px 0 #7657ff; }
+        .list-button { background:#7657ff!important; box-shadow:0 4px 0 #4933b1; transition:.2s; }
+        .list-button:hover { transform:translateY(-2px); box-shadow:0 6px 0 #4933b1; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="market-mark w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-xl">M</div>
+                <span class="text-xl font-extrabold text-slate-900">marketly</span>
+            </a>
+            <div class="hidden md:flex items-center gap-8 font-semibold text-slate-600">
+                <a href="index.html" class="hover:text-indigo-600 transition-colors">Home</a>
+                <a href="shop.html" class="text-indigo-600">Marketplace</a>
+            </div>
+            <div id="auth-controls" class="flex items-center gap-4"></div>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 px-6 max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+                <p class="page-label text-indigo-600 mb-3">Fresh finds, close to you</p>
+                <h2 class="text-5xl font-extrabold tracking-tight text-slate-900">The marketplace.</h2>
+                <p class="text-slate-500 font-medium mt-2">Useful things, unusual things, and everything in between.</p>
+            </div>
+            <div class="flex gap-3 w-full md:w-auto">
+                <input type="text" id="item-search" oninput="filterItems()" placeholder="Search items..." class="px-6 py-3.5 bg-white border border-slate-200 rounded-2xl outline-none w-full md:w-64">
+                <button onclick="openSellModal()" class="list-button px-6 py-3.5 text-white rounded-2xl font-bold">+ List an item</button>
+            </div>
+        </div>
+
+        <div id="items-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="col-span-full py-20 text-center text-slate-400">Loading marketplace...</div>
+        </div>
+    </main>
+
+    <div id="sell-modal" class="modal">
+        <div class="bg-white rounded-[2.5rem] p-10 max-w-lg w-full relative shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-8 right-8 text-slate-400">✕</button>
+            <h3 class="text-3xl font-black mb-8 text-slate-900">Post a Listing</h3>
+            <form id="sell-form" class="space-y-4">
+                <input type="text" id="itemName" placeholder="Item Name" required class="w-full px-5 py-4 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" step="0.01" id="itemPrice" placeholder="Price ($)" required class="w-full px-5 py-4 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input type="url" id="itemImage" placeholder="Image URL" class="w-full px-5 py-4 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <textarea id="itemDesc" placeholder="Description..." required rows="4" class="w-full px-5 py-4 bg-slate-50 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                <button type="submit" id="submit-btn" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg">Confirm Listing</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentUserId = null;
+        let allItems = [];
+
+        async function init() {
+            await checkSession();
+            await fetchMarketData();
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('action') === 'sell') openSellModal();
+        }
+
+        async function checkSession() {
+            const res = await fetch('auth.php?action=check_session');
+            const data = await res.json();
+            const authZone = document.getElementById('auth-controls');
+            if (data.loggedIn) {
+                currentUserId = data.userId;
+                authZone.innerHTML = `<span class="font-bold text-slate-700">Hi, ${data.username}</span>`;
+            } else {
+                authZone.innerHTML = `<a href="login.html" class="text-indigo-600 font-bold">Login</a>`;
+            }
+        }
+
+        async function fetchMarketData() {
+            const res = await fetch('api.php?action=list');
+            const result = await res.json();
+            allItems = result.data || result;
+            renderItems(allItems);
+        }
+
+        function renderItems(items) {
+            const grid = document.getElementById('items-grid');
+            grid.innerHTML = items.map(item => `
+                <div class="bg-white rounded-[2rem] border border-slate-100 overflow-hidden item-card transition-all duration-300 flex flex-col h-full">
+                    <img src="${item.imageUrl || 'https://placehold.co/400'}" class="w-full aspect-square object-cover">
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-slate-900 truncate pr-2">${item.name}</h3>
+                            <span class="text-indigo-600 font-black">$${item.price}</span>
+                        </div>
+                        <p class="text-slate-500 text-sm line-clamp-2 mb-4 flex-grow">${item.description}</p>
+                        <button class="w-full py-3 bg-indigo-50 text-indigo-600 rounded-xl font-bold hover:bg-indigo-600 hover:text-white transition-all">Details</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterItems() {
+            const query = document.getElementById('item-search').value.toLowerCase();
+            const filtered = allItems.filter(i => i.name.toLowerCase().includes(query));
+            renderItems(filtered);
+        }
+
+        document.getElementById('sell-form').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!currentUserId) return window.location.href = 'login.html';
+            
+            const payload = {
+                name: document.getElementById('itemName').value,
+                price: parseFloat(document.getElementById('itemPrice').value),
+                description: document.getElementById('itemDesc').value,
+                imageUrl: document.getElementById('itemImage').value,
+                sellerId: currentUserId
+            };
+
+            const res = await fetch('api.php?action=add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            if (result.status === 'success') {
+                closeModal();
+                fetchMarketData();
+                document.getElementById('sell-form').reset();
+            }
+        };
+
+        function openSellModal() { 
+            if (!currentUserId) window.location.href = 'login.html';
+            else document.getElementById('sell-modal').classList.add('active'); 
+        }
+        function closeModal() { document.getElementById('sell-modal').classList.remove('active'); }
+        
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SamiSoft - Login</title>
+        <style>
+            /* Global Colors */
+            :root {
+                --primary-color: #8A2BE2; /* BlueViolet */
+                --secondary-color: #00BFFF; /* DeepSkyBlue */
+                --input-bg: rgb(240, 234, 226);
+                --text-color: #333;
+                --white: white;
+            }
+
+            /* --- Base & Centering --- */
+            body {
+                font-family: 'Trebuchet MS', sans-serif;
+                /* Placeholder for background image */
+                background-image: url("background.jpg"); 
+                background-repeat: no-repeat;
+                background-size: cover;
+                
+                /* Center the container horizontally and vertically */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+                padding: 1rem; /* Padding for mobile screens */
+                box-sizing: border-box;
+            }
+
+            /* --- Main Container (Responsive Card) --- */
+            .auth-container {
+                background-color: var(--white);
+                width: 100%;
+                max-width: 450px; /* Max width on desktop */
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                
+                /* Layout for content inside */
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            /* Title */
+            #lab1 {
+                font-size: 2.5rem;
+                font-family: fantasy;
+                margin-bottom: 30px;
+                color: var(--text-color);
+                text-align: center;
+            }
+
+            /* Form Styling */
+            #login-form {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 15px; /* Spacing between form elements */
+            }
+
+            /* Input Fields */
+            input:not([type="checkbox"]) {
+                box-sizing: border-box;
+                width: 100%;
+                border-radius: 15px;
+                border: 1px solid #ddd;
+                padding: 18px 20px;
+                background-color: var(--input-bg);
+                font-size: 1rem;
+                font-family: inherit;
+                transition: border-color 0.3s;
+            }
+
+            input:not([type="checkbox"]):focus {
+                outline: none;
+                border-color: var(--primary-color);
+            }
+
+            input::placeholder {
+                font-size: 1rem;
+                font-family: 'Impact', fantasy;
+                color: #a0a0a0;
+            }
+            
+            /* --- Checkbox and Link Row --- */
+            .options-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 10px;
+                font-size: 0.9rem;
+            }
+
+            .remember-me {
+                display: flex;
+                align-items: center;
+            }
+
+            #check {
+                width: 16px;
+                height: 16px;
+                margin-right: 8px;
+            }
+            
+            .forget-password-link {
+                color: var(--primary-color);
+                text-decoration: none;
+                font-weight: 500;
+                transition: color 0.3s;
+            }
+
+            .forget-password-link:hover {
+                color: var(--secondary-color);
+            }
+
+            /* Submit Button */
+            button {
+                background-color: var(--primary-color);
+                color: var(--white);
+                border-radius: 15px;
+                border: none;
+                cursor: pointer;
+                display: block;
+                margin-top: 30px;
+                padding: 15px;
+                width: 100%;
+                font-size: 1.2rem;
+                font-weight: bold;
+                transition: background-image 0.3s, transform 0.1s;
+            }
+            
+            button:hover {
+                background-image: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+            }
+            
+            /* Footer Link */
+            h3 {
+                display: block;
+                margin-top: 25px;
+                font-size: 1rem;
+                text-align: center;
+                color: var(--text-color);
+            }
+            
+            h3 a {
+                color: var(--primary-color);
+                font-weight: bold;
+                text-decoration: none;
+                transition: color 0.3s;
+            }
+            
+            h3 a:hover {
+                color: var(--secondary-color);
+            }
+            
+            /* Message box styling - Updated to match new colors */
+            .message-box {
+                padding: 10px;
+                margin-bottom: 20px;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                text-align: center;
+                display: none;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .msg-error { 
+                background-color: #F8EFFF; /* Lightened BlueViolet */ 
+                color: #8A2BE2; /* BlueViolet */ 
+                border: 1px solid #8A2BE2; 
+            }
+            .msg-success { 
+                background-color: #E6F9FF; /* Lightened DeepSkyBlue */ 
+                color: #00BFFF; /* DeepSkyBlue */ 
+                border: 1px solid #00BFFF; 
+            }
+
+        </style>
+    </head>
+    <body background="">
+        <div class="auth-container">
+            <label id="lab1">LOGIN</label>
+            
+            <div id="message-box" class="message-box"></div>
+
+            <form id="login-form">
+                <input type="text" placeholder="Username" id="username" required>
+                <input type="password" placeholder="Password" id="password" required>
+                
+                <div class="options-row">
+                    <div class="remember-me">
+                        <input type="checkbox" id="check">
+                        <label for="check">Remember Me</label>
+                    </div>
+                    <a href="" class="forget-password-link">Forget Password</a>
+                </div>
+
+                <button type="submit">LOGIN</button>
+            </form>
+
+            <h3>You don't have account ? <a href="signup.html">Create one</a></h3>
+        </div>
+
+        <script>
+            // API configuration
+            const AUTH_API_URL = 'auth.php?action=login';
+            
+            // Helper function to show messages
+            const showMessage = (message, isError = false) => {
+                const box = document.getElementById('message-box');
+                box.textContent = message;
+                // Use a different color class for processing message
+                box.className = message.includes('...') ? 'message-box msg-success' : (isError ? 'message-box msg-error' : 'message-box msg-success');
+                box.style.display = 'block';
+            };
+
+            // Main login handler
+            document.getElementById('login-form').addEventListener('submit', async function(e) {
+                e.preventDefault(); 
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                if (!username || !password) {
+                    showMessage('Please enter both username and password.', true);
+                    return;
+                }
+                
+                showMessage('Authenticating...', false);
+
+                try {
+                    const response = await fetch(AUTH_API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            username: username,
+                            password: password
+                        })
+                    });
+                    
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        // The session is now set on the server by auth.php
+                        // No need to save anything to localStorage here.
+                        
+                        showMessage('Login successful! Welcome back! Redirecting...', false);
+                        
+                        setTimeout(() => {
+                            window.location.href = 'index.html'; 
+                        }, 1500);
+
+                    } else {
+                        // Display error message from the PHP backend
+                        showMessage(result.message || 'Login failed. Check your credentials.', true);
+                    }
+
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    showMessage('Connection error: Could not reach the server (auth.php).', true);
+                }
+            });
+
+            // Initialize message box state
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('message-box').style.display = 'none';
+            });
+        </script>
+    </body>
+</html>

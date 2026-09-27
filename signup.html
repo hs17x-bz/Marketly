@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SamiSoft - Sign Up</title>
+        <style>
+            /* Base Styles for Responsiveness */
+            :root {
+                --primary-color: #8A2BE2; /* BlueViolet */
+                --secondary-color: #00BFFF; /* DeepSkyBlue */
+                --input-bg: rgb(240, 234, 226);
+                --text-color: #333;
+                --white: white;
+            }
+
+            body {
+                font-family: 'Trebuchet MS', sans-serif;
+                background-image: url("background2.jpg"); /* Placeholder for background image */
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-position: center;
+                display: flex;
+                justify-content: center; /* Center horizontally */
+                align-items: center; /* Center vertically */
+                min-height: 100vh; /* Ensure full viewport height */
+                margin: 0;
+                padding: 1rem; /* Padding for mobile screens */
+                box-sizing: border-box;
+            }
+
+            /* Main Container (Responsive Card) */
+            .auth-container {
+                background-color: var(--white);
+                width: 100%;
+                max-width: 450px; /* Max width on desktop */
+                padding: 40px;
+                border-radius: 20px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                /* Flex properties for content inside */
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            /* Title */
+            #lab1 {
+                font-size: 2.5rem; /* Smaller for better fit */
+                font-family: fantasy;
+                margin-bottom: 30px;
+                color: var(--text-color);
+                text-align: center;
+            }
+
+            /* Form Input Styling */
+            input:not([type="checkbox"]) {
+                box-sizing: border-box;
+                width: 100%;
+                border-radius: 15px; /* Slightly less rounded */
+                border: 1px solid #ddd;
+                padding: 18px 20px;
+                margin-top: 15px;
+                background-color: var(--input-bg);
+                font-size: 1rem;
+                font-family: inherit;
+                transition: border-color 0.3s;
+            }
+
+            input:not([type="checkbox"]):focus {
+                outline: none;
+                border-color: var(--primary-color);
+            }
+
+            input::placeholder {
+                font-size: 1rem;
+                font-family: 'Impact', fantasy;
+                color: #a0a0a0;
+            }
+            
+            /* Date input specific style */
+            #date[type="date"] {
+                 /* Override the default placeholder style if needed */
+                color: var(--text-color);
+            }
+
+            /* Submit Button */
+            button {
+                background-color: var(--primary-color);
+                color: var(--white);
+                border-radius: 15px;
+                border: none;
+                cursor: pointer;
+                display: block;
+                margin-top: 30px;
+                padding: 15px;
+                width: 100%;
+                font-size: 1.2rem;
+                font-weight: bold;
+                transition: background-image 0.3s, transform 0.1s;
+            }
+            
+            button:hover {
+                background-image: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+            }
+            
+            /* Link/Footer Text */
+            h3 {
+                display: block;
+                margin-top: 25px;
+                font-size: 1rem;
+                text-align: center;
+                color: var(--text-color);
+            }
+            
+            h3 a {
+                color: var(--primary-color);
+                font-weight: bold;
+                text-decoration: none;
+                transition: color 0.3s;
+            }
+            
+            h3 a:hover {
+                color: var(--secondary-color);
+            }
+            
+            /* Message box styling */
+            .message-box {
+                padding: 10px;
+                margin-top: 20px;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                text-align: center;
+                display: none;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .msg-error { background-color: #fee2e2; color: #b91c1c; border: 1px solid #ef4444; }
+            .msg-success { background-color: #d1fae5; color: #065f46; border: 1px solid #10b981; }
+
+            /* Media Query for larger screens (if needed, but max-width handles most) */
+            @media (min-width: 600px) {
+                .auth-container {
+                    padding: 50px 70px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="auth-container">
+            <label id="lab1">Sign UP</label>
+            
+            <div id="message-box" class="message-box"></div>
+
+            <!-- ACTION ATTRIBUTE REMOVED TO PREVENT BROWSER NAVIGATION -->
+            <form id="signup-form">
+                <input type="text" placeholder="Enter your Username" id="username" required>
+                <input type="email" placeholder="Enter your Email" id="mail" required>
+                <input type="text" placeholder="Birthdate (YYYY-MM-DD)" id="date" onfocus="(this.type='date')" required>
+                <input type="password" placeholder="Enter your Password" id="password" required>
+                <button type="submit">SIGNUP</button>
+            </form>
+
+            <h3>You already have account ? <a href="login.html">Login</a></h3>
+        </div>
+
+        <script>
+            // API configuration
+            const AUTH_API_URL = 'auth.php?action=signup';
+            
+            // Helper function to show messages
+            const showMessage = (message, isError = false) => {
+                const box = document.getElementById('message-box');
+                box.textContent = message;
+                box.className = isError ? 'message-box msg-error' : 'message-box msg-success';
+                box.style.display = 'block';
+            };
+
+            // Main signup handler
+            document.getElementById('signup-form').addEventListener('submit', async function(e) {
+                // 1. PREVENT DEFAULT FORM SUBMISSION (THE FIX FOR "NOT FOUND")
+                e.preventDefault(); 
+                
+                const username = document.getElementById('username').value;
+                const email = document.getElementById('mail').value;
+                const birthdate = document.getElementById('date').value;
+                const password = document.getElementById('password').value;
+                
+                // Simple validation check
+                if (!username || !email || !birthdate || !password) {
+                    showMessage('All fields are required.', true);
+                    return;
+                }
+                
+                showMessage('Processing...', false);
+
+                try {
+                    const response = await fetch(AUTH_API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        // Send data to PHP backend
+                        body: JSON.stringify({
+                            username: username,
+                            email: email,
+                            birthdate: birthdate,
+                            password: password
+                        })
+                    });
+                    
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        showMessage('Signup successful! Redirecting to login...', false);
+                        // Redirect on success
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 1500);
+                    } else {
+                        // Display error message from the PHP backend
+                        showMessage(result.message || 'Signup failed due to an unknown error.', true);
+                    }
+
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    showMessage('Connection error: Could not reach the server (auth.php).', true);
+                }
+            });
+
+            // Initialize message box state
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('message-box').style.display = 'none';
+            });
+        </script>
+    </body>
+</html>  
