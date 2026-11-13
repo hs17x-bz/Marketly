@@ -1,14 +1,14 @@
-Markedly
+Marketly
 
 A Full-Stack Marketplace Application
 
-Markedly is a marketplace web application built to explore and implement the fundamentals of full-stack development, user authentication, database management, and CRUD operations.
+Marketly is a marketplace web application built to explore and implement the fundamentals of full-stack development, user authentication, database management, and CRUD operations.
 
 The project allows users to create accounts, publish products, manage their own listings, browse products from other users, and purchase items.
 
 Overview
 
-Markedly started as a beginner project, built to understand how frontend and backend components communicate and how application data is stored and managed.
+Marketly started as a beginner project, built to understand how frontend and backend components communicate and how application data is stored and managed.
 
 As my development skills progressed, I decided to improve the application's foundations rather than keeping its initial implementation.
 
@@ -81,7 +81,7 @@ Building Markedly helped me develop a practical understanding of:
 
 Project Status
 
-Markedly represents an ongoing learning journey in full-stack development. Its evolution reflects my progression from basic data handling to more structured backend development and database integration.
+Marketly represents an ongoing learning journey in full-stack development. Its evolution reflects my progression from basic data handling to more structured backend development and database integration.
 
 ---
 
