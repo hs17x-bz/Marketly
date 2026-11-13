@@ -1,4 +1,4 @@
-Marketly
+<h1>Marketly</h1>
 
 A Full-Stack Marketplace Application
 
